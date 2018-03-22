@@ -1,0 +1,11 @@
+---
+- hosts: all:!gr_hostservers
+  tasks:
+
+
+  - name: Copy ADMINER to WWW root
+    local_action: command rsync -ae ssh /root/ansible/distrs/adminer.php root@{{ansible_ssh_host}}:/opt/www
+
+  - name: exec CHMOD ADMINER.php
+    command: chmod a+r /opt/www/adminer.php
+

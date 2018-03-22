@@ -1,0 +1,12 @@
+---
+- hosts: all
+  tasks:
+
+  - name: DELETE old folder or symlink
+    command: rm -Rf /opt/www/osit/public_files/asterisk/monitor
+
+  - name: CREATE wright symlink to asterisk monitor
+    command: ln -sf /var/spool/asterisk/monitor /opt/www/osit/public_files/asterisk/monitor
+
+  - file: path=/var/spool/asterisk mode="u=rwx,g=rx,o=rx"
+  - file: path=/var/spool/asterisk/monitor mode="u=rwx,g=rx,o=rx"

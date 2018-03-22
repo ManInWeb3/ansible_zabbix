@@ -1,0 +1,7 @@
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+
+17   0   *  *  * root   /etc/scripts/sync2backupsrv.sh > /dev/null 2>&1
+

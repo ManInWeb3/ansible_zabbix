@@ -1,0 +1,11 @@
+---
+- hosts: all
+  tasks:
+  - name: sync zabbix config dirs
+    local_action: command rsync -ae ssh /root/ansible/templ/etc root@{{ansible_ssh_host}}:/etc
+
+  - name: exec hostinfo script
+    command: /etc/init.d/zabbix-agent restart
+    
+    
+

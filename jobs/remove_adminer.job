@@ -1,0 +1,7 @@
+---
+- hosts: all:!gr_hostservers
+  tasks:
+
+  - name: exec Remove ADMINER.php
+    command: rm -f /opt/www/adminer.php
+

@@ -1,0 +1,13 @@
+---
+- hosts: all
+  tasks:
+
+  - name: sync zabbix config dirs
+    local_action: command rsync -ae ssh /root/ansible/pakages root@{{ansible_ssh_host}}:/tmp
+
+  - name: exec hostinfo script
+    command: rpm -iv /tmp/pakages/lame-3.99.5-1.el6.rf.x86_64.rpm 
+
+  - name: exec hostinfo script
+    command: rm -fR /tmp/pakages
+

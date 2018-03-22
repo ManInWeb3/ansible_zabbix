@@ -1,0 +1,7 @@
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+01 * * * * root /etc/zabbix/scripts/hostinfo.sh > /tmp/hostinfo.txt
+03 * * * * root /etc/zabbix/scripts/officewan.sh > /dev/null
+02 * * * * root wget -q -O - http://formyip.com/ | awk '/The/{print($5)}' > /tmp/ct0ip.txt

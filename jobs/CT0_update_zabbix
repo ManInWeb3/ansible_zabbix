@@ -1,0 +1,24 @@
+---
+- hosts: gr_hostservers
+  tasks:
+
+  - name: sync zabbix config dirs
+    local_action: command rsync -ae ssh /root/ansible/templ/CT0/etc/zabbix root@{{ansible_ssh_host}}:/etc
+
+  - name: sync zabbix config files
+    local_action: command rsync -ae ssh /root/ansible/templ/CT0/etc/zabbix_agentd.conf root@{{ansible_ssh_host}}:/etc/zabbix_agentd.conf
+
+  - name: sync /etc/cron.d dir
+    local_action: command rsync -ae ssh /root/ansible/templ/CT0/etc/cron.d root@{{ansible_ssh_host}}:/etc
+
+  - name: sync /etc/cron.d dir
+    local_action: command rsync -ae ssh /root/ansible/templ/CT0/etc/sudoers.d root@{{ansible_ssh_host}}:/etc
+
+#  - name: remove old backup scripts
+#    command: rm -f /etc/scripts/bc.configs.sh &&rm -f /etc/scripts/bc.crmbase.sh &&rm -f /etc/scripts/bc.crmbase_h.sh
+
+  - name: exec zabbix-agent restart
+    command: /etc/init.d/zabbix-agent restart
+    
+    
+

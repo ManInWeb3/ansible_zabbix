@@ -1,0 +1,8 @@
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+
+0,30    *   *  *  * root   /etc/zabbix/externalscripts/ubc.sh
+
+

@@ -1,0 +1,25 @@
+---
+- hosts: all
+  tasks:
+
+  - name: sync zabbix config dirs
+    local_action: command rsync -ae ssh /root/ansible/crm/update/www/ root@{{ansible_ssh_host}}:/opt/www
+
+  - name: exec chmod
+    shell: chmod -R 777 /opt/www/modules/&&chown -R dev:dev /opt/www/test/crontest/&&chown -R dev:dev /opt/www/modules/&&chmod 777 /opt/www/osit/application/cache&&chmod 777 /opt/www/osit/application/logs
+
+#  - name: exec crm backup script
+#    command: /etc/scripts/bc.crmbase_h.sh
+
+#  - name: rm old sql file
+#    command: rm -f /opt/*.sql
+
+#  - name: sync 1.sql FILE to ALL servers
+#    local_action: command rsync -ae ssh /root/ansible/crm/update/1.sql root@{{ansible_ssh_host}}:/opt
+
+#  - name: LOAD 1.sql to MYSQL server
+#    shell: /usr/bin/mysql -u root -pafn158Ug -f crmbase < /opt/1.sql
+
+#  - name: rm 1.sql file
+#    command: rm -f /opt/1.sql
+

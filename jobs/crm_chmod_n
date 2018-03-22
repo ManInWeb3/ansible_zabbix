@@ -1,0 +1,64 @@
+---
+- hosts: all
+  tasks:
+
+   - name: Set right rules to every Dirs
+     shell: find /opt/www/* -type d -print0 | xargs -0 chmod 755
+
+   - name: Set right rules to every file
+     shell: find /opt/www/* -type f -print0 | xargs -0 chmod 644
+
+   - name: Set owner to root:root for /opt/www
+     shell: chown -R root:root /opt/www/
+
+   - name: Set right permisions for some sub dirs1
+     shell: chown -R dev:dev /opt/www/osit/application/logs
+
+   - name: Set right permisions for some sub dirs2
+     shell: chown -R dev:dev /opt/www/osit/application/cache
+
+   - name: Set right permisions for some sub dirs5
+     shell: chown -R dev:dev /opt/www/modules/SalesManSchedule/files
+
+   - name: Set right permisions for some sub dirs6
+     shell: chown -R dev:dev /opt/www/modules/TrihSecretary/files
+
+   - name: Set right permisions for some sub dirs7
+     shell: chown -R dev:dev /opt/www/test/crontest/logs&&rm -f /opt/www/test/crontest/logs/*
+
+   - name: Set right permisions for some sub dirs8
+     shell: chown -R dev:dev /opt/www/test/import_cust/logfiles
+
+   - name: Set right permisions for some sub dirs9
+     shell: chown -R dev:dev /opt/www/user_privileges/
+
+   - name: Set right permisions for some sub dirs3
+     shell: chown -R dev:dev /opt/www/osit/public_files/excel/
+
+   - name: Set right permisions for some sub dirs3
+     shell: chmod -R 777 /opt/www/osit/public_files/excel/
+
+   - name: Set right permisions for some sub dirs4
+     shell: chown -R dev:dev /opt/www/modules/ReportCredit/reports
+
+   - name: Set right permisions for some sub dirs4
+     shell: chmod -R 777 /opt/www/modules/ReportCredit/reports
+
+   - name: Set right permisions for some sub dirs5
+     shell: chown -R dev:dev /opt/www/modules/SalesManSchedule/files
+
+   - name: Set right permisions for some sub dirs5
+     shell: chmod -R 777 /opt/www/modules/SalesManSchedule/files
+
+   - name: Set right permisions for some sub dirs6
+     shell: chown -R dev:dev /opt/www/modules/TrihSecretary/files
+
+   - name: Set right permisions for some sub dirs6
+     shell: chmod -R 777 /opt/www/modules/TrihSecretary/files
+
+   - name: Set right permisions for some sub dirs6
+     shell: chown -R dev:dev /opt/www/user_privileges
+
+
+
+

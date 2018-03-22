@@ -1,0 +1,6 @@
+---
+- hosts: all
+  tasks:
+
+   - name: PHP-FPM restart
+     shell: /etc/init.d/php-fpm restart
