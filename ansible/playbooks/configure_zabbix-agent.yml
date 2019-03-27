@@ -1,0 +1,101 @@
+---
+- hosts: hardware_servers
+  vars_files:
+    - ../vars/vault_credentials.yml
+  vars:
+    - ansible_ssh_user: ansible
+    - ansible_ssh_pass: "{{ vault_ansible_ssh_password }}"
+    - ansible_sudo_pass: "{{ vault_ansible_ssh_password }}"
+  tasks:
+
+    - block:
+    #Install dependencies
+      - name: Install zabbix-agent scripts' dependencies on "{{ ansible_os_family }}"
+        apt: name={{item}} state=latest
+        with_items:
+          - zabbix-sender
+          - sudo
+          - lm-sensors
+          - smartmontools
+          - python3
+          - curl
+        when: ansible_os_family == "Debian"
+
+      # EPEL Neede to install PYTHON3
+      - yum: 
+          name: epel-release 
+          state: latest
+        when: ansible_os_family == "RedHat"
+
+      - yum: name={{item}} state=latest update_cache=yes
+        with_items:
+          - zabbix-sender
+          - sudo
+          - lm_sensors
+          - smartmontools
+          - python36
+          - curl
+        when: ansible_os_family == "RedHat"
+
+      - file:
+          src: /usr/bin/python36
+          dest: /usr/bin/python3
+          state: link
+        when: ansible_os_family == "RedHat"
+
+      - name: Copy Zabbix configs to /etc/zabbix
+        copy:
+          src: ../templ/zabbix-agent/etc/
+          dest: /etc/
+          force: yes
+
+      - name: Make my directory tree readable
+        file:
+          path: /etc/zabbix/scripts
+          mode: u=rwx,g=rx,o=rx
+          recurse: yes
+
+      - lineinfile:
+          path: /etc/zabbix/zabbix_agentd.conf
+          regexp: '^Server='
+          insertafter: '# Server='
+          line: 'Server=172.27.41.119,172.16.239.20'
+          create: yes
+
+      - lineinfile:
+          path: /etc/zabbix/zabbix_agentd.conf
+          regexp: '^ServerActive='
+          insertafter: '# ServerActive='
+          line: 'ServerActive=172.27.41.119'
+          create: yes
+
+      - lineinfile:
+          path: /etc/zabbix/zabbix_agentd.conf
+          regexp: '^HostMetadataItem='
+          insertafter: '# HostMetadataItem='
+          line: 'HostMetadataItem=system.uname'
+          create: yes
+
+      - replace:
+          dest: /etc/zabbix/zabbix_agentd.conf
+          regexp: '^HostMetadata='
+          replace: '# HostMetadata='
+
+      - replace:
+          dest: /etc/zabbix/zabbix_agentd.conf
+          regexp: '^Hostname='
+          replace: '# Hostname='
+
+      - lineinfile:
+          path: /etc/zabbix/zabbix_agentd.conf
+          regexp: '^Include='
+          line: 'Include=/etc/zabbix/zabbix_agentd.d/*.conf'
+          create: yes
+
+      - name: Restart service zabbix-agent
+        service:
+          name: zabbix-agent
+          state: restarted
+
+      become: yes
+

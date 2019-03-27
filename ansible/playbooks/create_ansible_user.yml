@@ -1,0 +1,19 @@
+---
+- hosts: newservers
+  vars_files:
+    - ../vars/vault_credentials.yml
+  tasks:
+    - name: Creating user ansible with sudo access on "{{ ansible_os_family }}"
+      user:
+        name: ansible
+        password: "{{ vault_ansible_ssh_password | password_hash('sha512') }}"
+        groups: sudo
+      when: ansible_os_family == "Debian"
+      become: yes
+
+    - user:
+        name: ansible
+        password: "{{ vault_ansible_ssh_password | password_hash('sha512') }}"
+        groups: wheel
+      when: ansible_os_family == "RedHat"
+      become: yes

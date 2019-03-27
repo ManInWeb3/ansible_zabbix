@@ -1,0 +1,10 @@
+---
+
+# Check if zabbix version is < then actual otr it's not installed then installed
+# SHELL [[ "$(dpkg-query --showformat='${Version}' --show zabbix-agent)" < "1:3.4" && "$(dpkg-query --showformat='${Version}' --show zabbix-agent 2>&1|grep 'no packages found'|wc -l)" = 0 ]] && echo old;
+
+- include: INSTALL_zabbix-agent.yml
+
+
+# In any way update cponofigs
+- include: configure_zabbix-agent.yml

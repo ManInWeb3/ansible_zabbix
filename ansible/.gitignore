@@ -1,0 +1,3 @@
+#ANSIBLE VAULT password file
+*.pass
+*.retry

@@ -1,0 +1,313 @@
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: zabbix
+#   labels:
+#     name: zabbix
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql-service
+  labels:
+    app: zabbix
+  # namespace: zabbix
+spec:
+  ports:
+    - port: 5432
+  selector:
+    tier: db-tier
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql
+  labels:
+    app: zabbix-db-deployment
+    # tier: db-tier    
+  # namespace: zabbix
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: db-tier
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        tier: db-tier
+    spec:
+      containers:
+        - image: postgres:9.6.2-alpine
+          name: postgresql
+          env:
+          - name: POSTGRES_DB
+            value: zabbix
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: db-zbx-user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: db-zbx-pass
+          ports:
+            - containerPort: 5432
+              name: postgresql
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-data
+          hostPath:
+            path: "/home/vladimir/GIT/zabbix/pg_data"
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zabbix-server
+  labels:
+    app: zabbix-server
+  # namespace: zabbix
+spec:
+  selector:
+    app: zabbix-server
+  ports:
+  - port: 10051
+    name: zabbix-trapper
+  # - port: 162
+  #   targetPort: 162
+  #   protocol: UDP
+  #   name: snmp-trap
+  externalIPs:
+  - YYYYYYYYYYYY
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zabbix-server
+  labels:
+    app: zabbix-server
+    # environment: dev
+  # namespace: zabbix
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zabbix-server
+  template:
+    metadata:
+      labels:
+        app: zabbix-server
+    spec:
+      containers:
+        - name: zabbix-server
+          image: my-zabbix-server-pgsql:alpine-latest
+          imagePullPolicy: Never
+          ports:
+          - containerPort: 10051
+            protocol: TCP
+            name: zabbix-trapper
+          readinessProbe:
+            tcpSocket:
+              port: zabbix-trapper
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: zabbix-trapper
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          env:
+          - name: DB_SERVER_HOST
+            value: postgresql-service
+          - name: POSTGRES_DB
+            value: "zabbix"
+          - name: POSTGRES_USER
+            valueFrom:
+             secretKeyRef:
+              name: db-secret
+              key: db-zbx-user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+             secretKeyRef:
+              name: db-secret
+              key: db-zbx-pass
+          - name: ZBX_JAVAGATEWAY_ENABLE
+            value: "true"
+          - name: ZBX_STARTJAVAPOLLERS
+            value: "5"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zabbix-web-service
+  labels:
+    app: zabbix
+  # namespace: zabbix
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    name: web-http
+  # - port: 443
+  #   targetPort: 443
+  #   name: web-https
+  selector:
+    app: zabbix-web
+  externalIPs:
+  - 172.28.29.72
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zabbix-web-deployment
+  labels:
+    app: zabbix-web
+  # namespace: zabbix
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: zabbix-web
+  template:
+    metadata:
+      labels:
+        app: zabbix-web
+    spec:
+      containers:
+        - name: zabbix-web
+          image: zabbix-web-nginx-pgsql:alpine-latest
+          imagePullPolicy: Never
+          ports:
+          - containerPort: 80
+            name: web-http
+          # - containerPort: 443
+          #   name: web-https
+          resources:
+           limits:
+            cpu: 200m
+            memory: 400Mi
+           requests:
+            cpu: 200m
+            memory: 400Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: web-http
+              scheme: HTTP
+            initialDelaySeconds: 15
+            timeoutSeconds: 2
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: web-http
+              scheme: HTTP
+            initialDelaySeconds: 15
+            timeoutSeconds: 2
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 5
+          env:
+          - name: ZBX_SERVER_NAME
+            value: "Zabbix kubernetes"
+          - name: PHP_TZ
+            value: "Europe/Riga"
+          - name: DB_SERVER_HOST
+            value: postgresql-service
+          - name: POSTGRES_DB
+            value: "zabbix"
+          - name: POSTGRES_USER
+            valueFrom:
+             secretKeyRef:
+              name: db-secret
+              key: db-zbx-user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+             secretKeyRef:
+              name: db-secret
+              key: db-zbx-pass
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zabbix-java-gateway
+  labels:
+    app: zabbix
+  # namespace: zabbix
+spec:
+  ports:
+  - port: 10052
+    targetPort: 10052
+    name: zabbix-java
+  selector:
+    app: zabbix-java
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zabbix-java-deployment
+  labels:
+    app: zabbix-java
+  # namespace: zabbix
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zabbix-java
+  template:
+    metadata:
+      labels:
+        app: zabbix-java
+    spec:
+      containers:
+        - name: zabbix-java
+          image: zabbix-java-gateway:alpine-latest
+          imagePullPolicy: Never
+          ports:
+          - containerPort: 10052
+            protocol: TCP
+            name: zabbix-jmx
+          resources:
+           limits:
+            cpu: 200m
+            memory: 512Mi
+           requests:
+            cpu: 200m
+            memory: 512Mi
+          readinessProbe:
+            tcpSocket:
+              port: zabbix-jmx
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: zabbix-jmx
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: List
+metadata:
+ # namespace: zabbix
+items:
+  - apiVersion: v1
+    kind: Secret
+    type: Opaque
+    metadata:
+     name: db-secret
+     # namespace: zabbix
+    data:
+     db-root-pass: "XXXXXXXXXXX"
+     db-zbx-user: "XXXXXXXXXXX"
+     db-zbx-pass: "XXXXXXXXXXX"

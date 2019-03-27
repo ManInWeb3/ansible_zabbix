@@ -1,0 +1,8 @@
+all:
+  children:
+    newservers:
+      hosts:
+    hardware_servers:
+      hosts:
+        zabbix.my.net.int:
+        srv.my.net.int:

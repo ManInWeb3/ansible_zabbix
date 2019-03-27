@@ -1,0 +1,3 @@
+[submodule "zabbix-docker"]
+	path = zabbix-docker
+	url = https://github.com/zabbix/zabbix-docker.git

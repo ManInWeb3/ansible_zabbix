@@ -1,0 +1,34 @@
+---
+- hosts: hardware_servers
+  vars_files:
+    - ../vars/vault_credentials.yml
+  vars:
+    - ansible_ssh_user: ansible
+    - ansible_ssh_pass: "{{ vault_ansible_ssh_password }}"
+    - ansible_sudo_pass: "{{ vault_ansible_ssh_password }}"
+  tasks:
+
+    - name: Apt remove Zabbix agent
+      apt:
+        name: zabbix-agent
+        state: absent
+        purge: yes
+      when: ansible_os_family == "Debian"
+      become: yes
+
+    - name: Yum install Zabbix agent
+      yum: 
+        name: zabbix-agent
+        state: absent
+      when: ansible_os_family == "RedHat"
+      become: yes
+
+    - name: Remove conf and log folders
+      file:
+        state: absent
+        path: "{{ item }}"
+      with_items:
+        - /etc/zabbix/
+        - /var/log/zabbix/
+        - /var/log/zabbix-agent/
+      become: yes

@@ -1,0 +1,5 @@
+Defaults:zabbix    !requiretty
+zabbix    ALL=(ALL) NOPASSWD: ALL
+#Cmnd_Alias ZABBIX_CMD = /etc/zabbix/scripts/
+#zabbix   ALL = (other_user)  NOPASSWD: ALL
+#zabbix   ALL = (root)        NOPASSWD: ZABBIX_CMD

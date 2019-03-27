@@ -1,0 +1,21 @@
+Host name	<enter name>
+Visible name
+
+Groups
+In groups		Other groups
+
+New group
+
+Agent interfaces
+IP address	DNS name	Connect to	Port	Default
+
+<ip-address>			IPDNS		10050	Remove
+Add
+SNMP interfaces	Add
+JMX interfaces	Add
+IPMI interfaces	Add
+Description
+
+Monitored by proxy
+
+Enabled

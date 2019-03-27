@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#docker run --rm -it -v $(pwd)/ssh_key:/root/.ssh -v $(pwd)/playbooks:/ansible/playbooks ansible-playbook $@
+
+docker run --rm -it \
+	-v $(pwd):/ansible \
+ 	-e DENV_USER=$USER \
+ 	-e DENV_USER_ID=$(id -u $USER) \
+ 	-e DENV_GROUP_ID=$(id -g $USER) \
+	--env-file ./ansible_env \
+	ansible-playbook $@
+
+# --entrypoint /bin/bash 
+#!/bin/bash
+
+# Need to EXPORT Variables to be able to get them from doker-compose
+#export DUID=$(id -u $USER)
+#export DGID=$(id -g $USER)
+ # --verbose
+#docker-compose -f $(dirname $(readlink -f $0))/docker-compose_nginx_php7_mysql.yaml up
+#exit
+
+# docker run -it \
+# 	-e DENV_WWW_USER=$USER \
+# 	-e DENV_WWW_USER_ID=$DUID \
+# 	-e DENV_WWW_GROUP_ID=$DGID \
+# 	nginx_php7:latest bash
+
+
+
+
+
